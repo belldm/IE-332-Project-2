@@ -3,7 +3,7 @@ Algorithm Ideas
 - Changing one color to another - gianna
 - Adding blur
 - Zooming in/Zooming out - justin
-- 1 in every 4 pixels turns a shade of color
+- 1 in every 4 pixels turns a shade of color - gianna
 - Adding a filter
 - 
 - 
