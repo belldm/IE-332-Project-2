@@ -16,8 +16,8 @@ for (file in filelist) {
   # read the image
   img <- image_read(file)
   
-  # apply a Gaussian blur filter with a radius of 3 pixels
-  image_blur <- blur_anisotropic(img, "gaussian", sigma = 3) 
+  # apply a box blur filter with a radius of 3 pixels in x and y directions
+  image_blur <- boxblur_xy(img, xradius = 3, yradius = 3) 
   
   # write the filtered image to a new file
   new_file <- sub(".jpg", "_blur.jpg", file)
@@ -35,7 +35,7 @@ for (file in filelist2) {
   # read the image
   img2 <- image_read(file)
   
-  # apply a Gaussian blur filter with a radius of 3 pixels
+  # apply an anisotropic Gaussian blur filter with a radius of 3 pixels
   image_blur <- blur_anisotropic(img2, "gaussian", sigma = 3)
   
   # write the filtered image to a new file
