@@ -1,6 +1,5 @@
 library(tensorflow)
 library(keras)
-library(adversarial)
 
 # Define the paths to your dataset
 grass_data_dir <- "path/to/grass"
