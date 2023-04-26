@@ -1,3 +1,4 @@
+library(tensorflow)
 library(keras)
 library(adversarial)
 
