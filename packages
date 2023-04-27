@@ -1,0 +1,13 @@
+install.packages("tensorflow")
+install.packages("keras")
+library(reticulate)
+reticulate::py_install("pillow", force(TRUE))
+
+library(tidyverse)
+library(keras)
+library(tensorflow)
+use_backend("tensorflow")
+library(purrr)
+
+model <- load_model_tf("./dandelion_model")
+
