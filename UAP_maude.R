@@ -1,15 +1,12 @@
 library(reticulate)
 reticulate::py_install("cleverhans", force= TRUE)
-reticulate::py_install("adversarial", force = TRUE)
-adv <- import("adversarial")
-
 library(imager)
 library(tensorflow)
 library(keras)
 
 # Define the paths to your dataset
-grass_data_dir <- "~/OneDrive/IE332/grass"
-dandelions_data_dir <- "~/OneDrive/IE332/dandelions"
+grass_data_dir <- "/Users/maudefrappart/Library/CloudStorage/OneDrive-purdue.edu/IE332/grass"
+dandelions_data_dir <- "/Users/maudefrappart/Library/CloudStorage/OneDrive-purdue.edu/IE332/dandelions"
 
 # Create the data generators for each dataset
 img_gen <- image_data_generator()
@@ -29,8 +26,8 @@ dandelions_data <- flow_images_from_directory(
 )
 
 # Define the model you want to attack
-model_path <- "~/OneDrive/IE332/classifier_model"
-model <- keras::load_model(model_path)
+model_path <- "/Users/maudefrappart/Library/CloudStorage/OneDrive-purdue.edu/IE332/classifiermodel.R"
+model <- tensorflow::tf$keras$models$load_model(model_path)
 
 # Define the parameters for the attack
 nb_epochs <- 10
@@ -58,3 +55,4 @@ X_grass_adv <- predict(up_fit, X_grass)
 X_dandelions <- dandelions_data$X
 Y_dandelions <- dandelions_data$Y
 X_dandelions_adv <- predict(up_fit, X_dandelions)
+
