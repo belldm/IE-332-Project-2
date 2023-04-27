@@ -1,5 +1,7 @@
 library(reticulate)
 reticulate::py_install("cleverhans", force= TRUE)
+reticulate::py_install("adversarial", force = TRUE)
+adv <- import("adversarial")
 
 library(imager)
 library(tensorflow)
@@ -32,9 +34,9 @@ model <- keras::load_model(model_path)
 
 # Define the parameters for the attack
 nb_epochs <- 10
-eps <- 0.2
+eps <- 0.5
 batch_size <- 32
-delta <- 0.2
+delta <- 0.5
 
 # Create the UAP object
 up <- universal_perturbation_fgsm(
