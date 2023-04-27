@@ -14,14 +14,16 @@ filelist <- list.files(path, pattern = ".jpg", full.names = TRUE)
 # iterate over each file in the folder
 for (file in filelist) {
   # read the image
-  img <- image_read(file)
+  img <- imager::load.image(file)
   
-  # apply a Gaussian blur filter with a radius of 3 pixels
-  image_blur <- imager::blur(img, "gaussian", sigma = 3) 
+  # apply a box blur filter with a radius of 3 pixels in x and y directions
+  image_blur <- boxblur_xy(img, sx = 3, sy = 3) 
+  # convert the image to a matrix
+  image_matrix <- imager::as.array(image_blur)
   
   # write the filtered image to a new file
   new_file <- sub(".jpg", "_blur.jpg", file)
-  writeJPEG(image_blur, new_file, quality = 100)
+  writeJPEG(image_matrix, new_file, quality = 100)
 }
 
 # set the path to the folder containing the images
@@ -35,8 +37,8 @@ for (file in filelist2) {
   # read the image
   img2 <- image_read(file)
   
-  # apply a Gaussian blur filter with a radius of 3 pixels
-  image_blur <- imager::blur(img2, "gaussian", sigma = 3)
+  # apply an anisotropic Gaussian blur filter with a radius of 3 pixels
+  image_blur <- blur_anisotropic(img2, "gaussian", sigma = 3)
   
   # write the filtered image to a new file
   new_file2 <- sub(".jpg", "_gray.jpg", file)

@@ -1,9 +1,12 @@
 install.packages("tensorflow")
+tensorflow::install_tensorflow()
 install.packages("keras")
-reticulate:: py_install("pillow", force = TRUE)
-
-library(tidyverse)
+install.packages("applications")
 library(reticulate)
+reticulate:: py_install("pillow", force = TRUE)
+reticulate:: py_install("cleverhans", force = TRUE)
+library(tidyverse)
+library(applications)
 library(keras)
 library(tensorflow)
 use_backend("tensorflow")
@@ -35,7 +38,7 @@ img2 <- do.call(rbind, img2)
 # use fgsm to change something of this image that will fool the classifier model
 fgsm_attack <- function(model, x, epsilon) {
   # Preprocess the image data
-  x <- applications::imagenet_preprocess_input(x)
+  x <- keras::preprocess_input(x)
   # Compute the gradient of the loss function with respect to the input image
   grad <- k_gradient(model$output, model$input)
   # Compute the sign of the gradient
@@ -45,7 +48,7 @@ fgsm_attack <- function(model, x, epsilon) {
   # Clip the perturbed image to ensure that pixel values remain within [-1, 1]
   x_adv <- clip(x_adv, -1, 1)
   # Reverse the preprocessing step to obtain the perturbed image in its original format
-  x_adv <- applications::imagenet_preprocess_input(x_adv, mode = "tf")
+  x_adv <- keras::preprocess_input(x_adv, mode = "tf")
   # Return the perturbed image
   return(x_adv)
 }
