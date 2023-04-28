@@ -7,6 +7,7 @@
 \usepackage{fancyhdr}
 \usepackage{enumerate}
 \usepackage{mathtools}
+\usepackage{hyperref}
 \usepackage{tabularx}
 \usepackage{hyperref,color}
 \usepackage{enumitem,amssymb}
@@ -59,7 +60,9 @@ showstringspaces=false
 
 Due: April 28th, 2023 11:59pm EST % <-- replace with correct due date and time
 \end{center}
-
+\begin{center}
+Group GitHub Link: \href{https://github.com/belldm/IE-332-Project-2}{github.com/belldm/IE-332-Project-2}   
+\end{center}
 \vspace{0.3in}
 
 \noindent We have {\bf read and understood the assignment instructions}. We certify that the submitted work does not violate any academic misconduct rules, and that it is solely our own work. By listing our names below we acknowledge that any misconduct will result in appropriate consequences. 
@@ -196,7 +199,7 @@ add_noise_to_images("grass")
 \end{lstlisting}
 
 \subsection{Spatial Transformation Attack}
-Another algorithm our group attempted was a spatial transformation attack by rotating the images vertically in an attempt to fool the binary image classifier. By rotating, we are not changing the pixels, but transforming them to fit the given requirements. Vertically flipping an image was done to fool the algorithm because by changing the orientation of an image, the classifier misinterprets the contents of the image because the items within the image are altered and flipped which allows us to successfully fool it.  We have done this by utilizing the "magick" R package and the image\_flip() function. We used this function in two FOR loops for both the dandelion and grass folder. The for loop runs through the pictures in the folder and creates a new copy of the image with the desired vertical rotation.
+Another algorithm our group attempted was a spatial transformation attack by rotating the images vertically in an attempt to fool the binary image classifier. By rotating, we are not changing the pixels, but transforming them to fit the given requirements. Vertically flipping an image was done to fool the algorithm because by changing the orientation of an image, the classifier misinterprets the contents of the image because the items within the image are altered and flipped which allows us to successfully fool it.  We have done this by utilizing the \verb|'magick'| library and the \verb|image_flip()| function. We used this function in two FOR loops for both the dandelion and grass folder. The for loop runs through the pictures in the folder and creates a new copy of the image with the desired vertical rotation.
 \begin{lstlisting}[language = R, frame=single]
 library(tidyverse)
 library(keras)
@@ -270,7 +273,76 @@ for (file in list.files(img_folder, pattern = "\\.jpg$")) {
   imager::save.image(blurred_img, file.path(img_folder, new_file))
 }
 \end{lstlisting}
+
 \section{Majority Classifier}
+\begin{lstlisting}[language = R, frame = single]
+# load required libraries for each individual algorithm
+
+# define the image classifier and the image-changing algorithms
+classifier <- function(image) {
+  # classifier code here (given)
+}
+
+# change 100th pixel to white
+pixel10th <- function(path) {
+  # code from 2.1 here 
+}
+
+# vertical flip algorithm
+vertical_flip <- function(path) {
+  # code from 2.3 here
+}
+
+# blur the image
+isoblurFunction <- function(path) {
+  # code from 2.5 here
+}
+
+# place a black box in the center of the image, covering 1% of pixels
+centered_black_box <- function(path){
+  # code from 2.4 here
+}
+
+# add noise to 1% of the image
+add_noise_to_images <- function(path) {
+  # code from 2.2
+}
+
+# load the images from each folder
+all_files_d <- list.files(path = "dandelions", pattern = "\\.jpg$", full.names = TRUE)
+files_dandelions <- all_files_d[!grepl(ignore_patterns, all_files_d)]
+all_files_g <- list.files(path = "dandelions", pattern = "\\.jpg$", full.names = TRUE)
+files_grass <- all_files_g[!grepl(ignore_patterns, all_files_g)]
+
+# weights range from .075 to .325 for each algorithm
+algorithm_weights <- c(0.075, 0.125, 0.2, 0.275, 0.325)
+
+# apply the predictor on each image
+best_func <- function(files1, files2) {
+  for (file in files){
+      image <- load.image(image_file)
+      
+      # determine best algorithm for each image
+      predictions <- map_dbl(list(pixel10th, vertical_flip, isoblurFunction, centered_black_box, add_noise_to_images), function(algorithm) {
+        modified_image <- algorithm(image)
+        classifier(modified_image)
+      })
+      
+      # calculate the weighted sum of probabilities for each algorithm
+      probs <- c(0,0,0,0,0)
+      for (i in seq_along(predictions)) {
+        probs[predictions[i]] <- probs[predictions[i]] + algorithm_weights[i]
+      }
+      
+      # return the algorithm with highest weighted sum of probabilities
+      return(which.max(probs))
+    }
+}
+
+best_func <- (files_grass, files_dandelions)
+\end{lstlisting}
+
+\noindent While we could not successfully combine the 5 algorithms into a majority voting classifier, this method was our general/desired approach. We converted each of our algorithms into functions that would accept an argument of the folder path. Then they would take the path and make a list of the files, and ignore previous iterations on the images (each change would only modify the original images). The predictor would consider each folder (dandelions and grass) separately, performing the algorithms on all images and determine which algorithm would cause the classifier to predict the least amount of images correctly (as desired when fooling the classifier). It would then assign weights to each algorithm to give the best algorithm for that image the highest weight so that the classifier is more likely to be fooled. It will then calculate the sum of probabilities depending on weights and return the best algorithm. This approach would best perform the tasks expected and allow for the algorithm to be more likely to be fooled than if we simply tried to use a single algorithm or the same algorithm on each.
 
 \newpage
 \section{Appendix I: Testing}
@@ -310,18 +382,73 @@ For testing our algorithms, we utilized the RStudio to identify if our algorithm
 \newpage
 \section{Appendix II: Run-time Complexity and WallTime}
 \subsection{Technical Challenges}
-One major issue in regards to accounting for run-time complexity and WallTime was the fact that we had difficulties in developing working algorithms and also developing the majority classifier. This created challenges because the project was set up for us to be able to easily compare run times for the different algorithms/find an average run time for the total modification of pictures and their classification, but the lack of a working majority voting classifier algorithm prevented the ability of that. We were able to account for the run-time complexities and walltimes of each indi
-\subsection{Complete Algorithm}
+One major issue in regards to accounting for run-time complexity and WallTime was the fact that we had difficulties in developing working algorithms and also developing the majority classifier. This created challenges because the project was set up for us to be able to easily compare run times for the different algorithms/find an average run time for the total modification of pictures and their classification, but the lack of a working majority voting classifier algorithm prevented the ability of that. We were able to account for the run-time complexities and walltimes of each individual algorithm separately but did not get a combined time for the overall average.
+\subsection{Run-time Complexity}
+For the vertical flip algorithm, the FOR loop runs a total of n times which is the number of pictures in the selected folder. The code is linear as it looks through each picture in the folder once. Therefore, the time complexity of the vertical flip algorithm is: 
+\begin{center}
+    = $\Theta$(n) 
+\end{center}
+
+\noindent For the Centered Black Box algorithm, the run-time complexity of the algorithm depends on the number and size of the images in the directories. The 'list.files' function has a time complexity of O(n), since it needs to scan the directory to find all the files that match the pattern. The 'readJPEG' function reads in the image and has a time complexity of O(m), since it needs to read in each pixel of the image. The nested loops that modify the pixels have a time complexity of O(m), since each pixel in the black box is being modified. The 'writeJPEG' function writes the modified image to a new file and has a time complexity of O(m), since it needs to write out each pixel of the image. Therefor the overall time complexity of the algorithm is: 
+\begin{center}
+    = O($n*m^2$)
+\end{center}
+
+\noindent For the \verb|'blur'| algorithm, the time complexity depends on the number of images in the dandelion and grass folders. The \verb|'isoblurFunction()'| function loops through each file, so the time complexity of that operation is \verb|O(n)|. Inside the loop, the \verb|'load.image()'| function has a time complexity of O(1) since it simply reads in the image from the file. The \verb|isoblur()| function applies a blur to the image, which has a time complexity of O(w * h * r), where w and h are the width and height of the image, and r is the radius of the blur. Since the radius is fixed at 5 pixels, we it represents a constant factor. Therefore, the time complexity of the \verb|'isoblur()'| function can be simplified to O(w * h). Finally, the \verb|'save.image()'| function has a time complexity of O(w * h), as it needs to write the image data to disk. Therefore, the overall time complexity is: 
+\begin{center}
+    = O($n * w * h$)
+\end{center}
+
+
+\noindent For the 100th pixel change algorithm, \verb|pixel10th|, the run-time complexity mostly relies on the amount of pixels of each image and the total files that are to be modified in each of the dandelions and grass folders. The function has to loop through the pixels, by 100 pixels per row and column, which is why the complexity accounts for O(m), where m is the total number of pixels per image. Then the function will perform this action on all of the images in the folder, thus O(n) will be the other added complexity with n being the total files in the folder, or combined amount of files in both the grass and dandelion folders. The complete run-time complexity algorithm for this is thus:
+\begin{center}
+    = O($n*m$)
+\end{center}
+
+\noindent The Noise algorithm iterates over each JPEG file in the folder, reads the image, modifies a proportion of randomly selected pixels, and writes the resulting noisy image to a new file. Since the algorithm processes each file in the directory, its overall time complexity is O(n * m), where n is the number of files and m is the size of each file. The complexity of the pixel modification step is dependent on the proportion of pixels to modify, which is set to a constant value of 0.01 in the algorithm. Therefore, the time complexity of the algorithm can be simplified to:
+\begin{center}
+    = O(n)
+\end{center}
+
+\begin{lstlisting}[language = R, frame = single]
+#example of modified grass images getting kicked by classifier
+1/1 [==============================] - 0s 498ms/step
+[1] "(GRASS+2)+turf+lawn+green+ground+field+seamless+texture+2048x2048-2663209674_noisy1%.jpg"
+1/1 [==============================] - 0s 56ms/step
+[1] "1602408-2700088754_noisy1%.jpg"
+1/1 [==============================] - 0s 57ms/step
+[1] "18-4196734595_noisy1%.jpg"
+1/1 [==============================] - 0s 58ms/step
+[1] "20334a31c970fb3607b17613614f9244-1240575823_noisy1%.jpg"
+1/1 [==============================] - 0s 57ms/step
+[1] "5_noisy1%.jpg"
+1/1 [==============================] - 0s 56ms/step
+
+#example of modified dandelion images getting kicked by classifier
+1/1 [==============================] - 0s 57ms/step
+[1] "636597665741397587-dandelion-1097518082_noisy1%.jpg"
+1/1 [==============================] - 0s 55ms/step
+[1] "AdobeStock_206345546-426480574_noisy1%.jpg"
+1/1 [==============================] - 0s 57ms/step
+[1] "common-dandelion-43x_pam3-3575848235_noisy1%.jpg"
+1/1 [==============================] - 0s 57ms/step
+[1] "dandelion-1307475185dYm-3246239646_noisy1%.jpg"
+1/1 [==============================] - 0s 58ms/step
+[1] "dandelion-1336930590TbT-2982997207_noisy1%.jpg"
+1/1 [==============================] - 0s 56ms/step
+\end{lstlisting}
+\noindent Above is an example output from running our modified images through the classifier algorithm. More specifically this is the output of the grass and dandelion test of 1 percent noise algorithm. For this algorithm, there was an overall average of 61.5ms taken for each image, including the outlier of the first image. The others are in a similar range, though this is the fastest overall. All of our algorithms produced output from the classifier, but there were too many outputs from all the algorithms to be able to include them in the report here. All of the outputs are in the GitHub. \\
 
 
 \newpage
 \section{Appendix III: Performance}
+Performance for this project was crucial, though a challenge to achieve and maintain. We had to make trade-offs through each iteration of the algorithm, with the goal of not only fooling the model through individual sub-algorithms but making each algorithm applicable to a majority classifier. To accomplish this, we wanted to devise algorithms that were diverse, in that they could not only perform but perform differently. We devised several sub-algorithms designed to fool the model, all with different rates of performance and versatility. We felt that if we were able to design algorithms that were more diversified it would also diversify the number of modified images that could fool the model. We also had constraints that needed to be met, like a pixel change budget of 1\verb|%|. We ultimately achieved the budget for 4 of our working algorithms, but were unable to account for the budget when designed our\verb|'blur'| algorithm (mentioned below).
 
 \subsection{Technical Challenges}
 \subsubsection{Blur}
 An issue that we ran into and were unable to solve, was a pinpointed blur attack on the images. We attempted dozens of renditions of the blur effect using different functions and packages, but ran into cycles of errors each time. we tried functions including \verb|'gaussian_blur'| from the \verb|'imager'| package, \verb|'blur'| function from the \verb|'imager'| and \verb|'EBImage'| package, and the \verb|'blurImage'| function from the \verb|'imager'| package. All of these involved creating a blur at random pinpointed pixels, with a specified blur radius. This was all in an attempt to blur only 1\verb|%| of the pixels rather than the whole image. After countless attempts, we decided to simply use the \verb|'isoblu'| function from the \verb|'imager'| package to create a blur effect for the entire picture (See Section 2.5 for detailed algorithm). 
 \subsubsection{Grass Declassification}
-Our biggest challenge was our algorithms inability to declassify the grass images from the trained model. Through each rendition of our sub-algorithms we found the classifier was never fooled in regard to the grass images. Each time it was able to classify the pictures of grass. In an attempt to understand why our algorithms weren't able to fool the model in each case, we tried multiple color changing algorithms to attempt to inebriate the model. Even with a full grey-scale effect, full color changes, and multiple orientation transformation algorithms, in addition to our five sub-algorithms, we were unable to fool the model. We deducted that we would be unable to do so, and tried to focus our efforts on the most effective algorithms for fooling the model's dandelion classifications. 
+Our biggest challenge was our algorithms inconsistent ability to declassify the grass images from the trained model. Through each rendition of our sub-algorithms we found the classifier was rarely fooled in regard to the grass images. Almost every time the model was able to classify the pictures of grass as grass, regardless of the sub-algorithm used. In an attempt to understand why our algorithms weren't able to fool the model consistently, we tried multiple color changing algorithms to attempt to inebriate the model. Even with a full grey-scale effect, full color changes, and multiple orientation transformation algorithms, in addition to our five sub-algorithms, we were unable to fool the model consistently. We deducted that we would be unable to do so, and tried to focus our efforts on the most effective algorithms for fooling the model's dandelion classifications. It's important to note that we were able to fool the grass on multiple occasions, and we were able to fool the grass consistently when multiple algorithms were imposed on the images.
 \begin{figure}[htbp]
   \centering
   \begin{minipage}[b]{0.4\textwidth}
@@ -353,9 +480,9 @@ Our biggest challenge was our algorithms inability to declassify the grass image
 \newpage
 \section{Appendix IV: Justification}
 \subsection{Technical Challenges}
-Throughout this project, we tested more than just the 5 algorithms we chose to work with right now. Ultimately, the decision to use those algorithms was influenced by the challenges we ran into with other algorithms tested out.
+Throughout this project, we tested more than just the 5 algorithms we inevitably chose to work. Ultimately, part of the decision to use said algorithms was influenced by the challenges we ran into while developing and testing other algorithms we had designed. 
 \subsubsection{Universal Adversarial Perturbations - (UAP)}
- The first other machine learning algorithm we tested out for the adversarial attack was the UAP (Universal Adversarial Perturbation). This attack is meant to add a small perturbation to the large amount of images data, causing the model to declassify them. Through the creation of that algorithm, we ran into multiple issues. First off, this algorithm works best with the “adversarial” function package, which, is not available in R. We tried to use the “reticulate” and “py install” functions to fix that issue, which didn’t work, and even though we ended up using the “cleverhans” package, not being able to use adversarial made the overall process much harder. Therefore, working in R instead of Python was definitely one of our biggest challenges during this project. Another issue we ran into was the "imager" library not working properly on Mac, we downloaded the “XQuartz” software to be able to use the package properly. Finally, the fgsm function included in the UAP code ended up being very complex to work with, as it gave us many errors we weren’t able to get over. Below is the attached code of the UAP algorithm we tried out.
+ One of the first machine learning algorithms we tested was the adversarial attack, UAP (Universal Adversarial Perturbation). This attack was meant to add a small perturbation to the large amount of images data, causing the model to declassify them. Through the creation of that algorithm, we ran into multiple issues. First off, this algorithm works best with the “adversarial” function package, which, is not available in R. We tried to use the “reticulate” and “py install” functions to fix that issue, which didn’t work, and even though we ended up using the “cleverhans” package, not being able to use adversarial made the overall process much harder. Therefore, working in R instead of Python was definitely one of our biggest challenges during this project. Another issue we ran into was the "imager" library not working properly on Mac, we downloaded the “XQuartz” software to be able to use the package properly. Finally, the fgsm function included in the UAP code ended up being very complex to work with, as it gave us many errors we weren’t able to get over. Below is the attached code of the UAP algorithm we tried out.
 
 \begin{lstlisting}[language = R, frame=single]
 library(reticulate)
