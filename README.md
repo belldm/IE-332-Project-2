@@ -1,19 +1,17 @@
 # IE-332-Project-2
-Algorithm Ideas
-- Changing one color to another - gianna 
-- Adding blur
-- Zooming in/Zooming out 
-- 1 in every 4 pixels turns a shade of color - gianna
-- Adding a filter
+Working sub-Algorithms:
+- 1/100 color change
+- Vertical
+- 1% noise
+- Centered black box
+- 1% Greyscale
+
+- Blur*
+- Horizontal*
 - 
-- 
 
 
-
-
-
-
-From online 
+More Ideas from online 
 There are several types of adversarial attacks that could work on a binary image classifier. Some of the common adversarial attacks that can be used on binary image classifiers are:
 
 -Fast Gradient Sign Method (FGSM): FGSM is a popular adversarial attack that uses the gradient of the classifier to generate adversarial examples. It adds a small perturbation to the input image in the direction of the gradient to maximize the classification error.
