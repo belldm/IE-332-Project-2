@@ -1,34 +1,33 @@
-library(jpeg)
-
-pixel10th <- function (files_to_process) {
-  # Process each file
-  for (file in files_to_process) {
-    # Read in the file
-    img <- readJPEG(file)
+pixel10th <- function(folder_path, pattern = "\\.jpg$") {
+  # list all JPG files in the folder folder
+  file_list <- list.files(path = folder_path, pattern = pattern, full.names = TRUE)
+  
+  # loop over each file in the list
+  for (file in file_list) {
+    # read image
+    image <- readJPEG(file)
     
-    # dimensions of png
-    width <- dim(img)[1]
-    height <- dim(img)[2]
+    # dimensions of jpg
+    width <- dim(image)[1]
+    height <- dim(image)[2]
     
-    # for loop to change the color of every 100th pixel
+    # for loop changes every 100th pixel to white
     for (i in seq(1, width, by=100)) {
       for (j in seq(1, height, by=100)) {
         #change color to white in rgb
-        img[i, j, ] <- c(1, 1, 1)
+        image[i, j, ] <- c(1, 1, 1) 
       }
     }
     
-    modified_file <- paste0("modified_", file)
-    writeJPEG(img, modified_file)
+    # Write the modified image to a new file
+    writeJPEG(image, paste0(file, "_modified.jpg"))
   }
 }
 
-# Get a list of all jpgs in dandelion folder
-all_files_d <- list.files(path = "dandelions", pattern = "\\.jpg$")
-files_dandelions <- all_files_d[!grepl("modified_", all_files_d)]
-pixel10th(files_dandelions)
+# change all dandelion pictures
+dandelionPath <- "C:/Users/giann/Documents/ie332/dandelions"
+pixel10th(dandelionPath, pattern = "\\.jpg$")
 
-# Get a list of all jpgs in grass folder
-all_files_g <- list.files(path = "grass", pattern = "\\.jpg$")
-files_grass <- all_files_g[!grepl("modified_", all_files_g)]
-pixel10th(files_grass)
+# change all grass pictures
+grassPath <- "C:/Users/giann/Documents/ie332/grass"
+pixel10th(grassPath, pattern = "\\.jpg$")
