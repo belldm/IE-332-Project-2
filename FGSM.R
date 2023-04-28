@@ -34,7 +34,7 @@ img2 <- do.call(rbind, img2)
 
 
 
-# use fgsm to change something of this image that will fool the classifier model
+# use fgsm to fool the classifier model
 fgsm_attack <- function(model, x, epsilon) {
   # Preprocess the image data
   x <- keras::preprocess_input(x)
