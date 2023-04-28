@@ -122,7 +122,44 @@ Our objective for this project was to train a voting-based optimization algorith
 
 \section{Algorithms}
 \subsection{Patterned Pixel Change}
-\newpage
+As discussed in class by Carlos, changing pixels to fool the algorithm seemed an obvious choice, even with the limiting budget of .01 total pixels changed in an image. We decided that changing 1 of every 100th pixel to the color white would be the best way to fool the classifier, simply using sequencing and rgb color valued to edit individual pixels.
+\begin{lstlisting}[language = R, frame=single]
+library(jpeg)
+
+pixel10th <- function (files_to_process) {
+  # Process each file
+  for (file in files_to_process) {
+    # Read in the file
+    img <- readJPEG(file)
+    
+    # dimensions of png
+    width <- dim(img)[1]
+    height <- dim(img)[2]
+    
+    # for loop to change the color of every 100th pixel
+    for (i in seq(1, width, by=100)) {
+      for (j in seq(1, height, by=100)) {
+        #change color to white in rgb
+        img[i, j, ] <- c(1, 1, 1)
+      }
+    }
+    
+    modified_file <- paste0("modified_", file)
+    writeJPEG(img, modified_file)
+  }
+}
+
+# Get a list of all jpgs in dandelion folder
+all_files_d <- list.files(path = "dandelions", pattern = "\\.jpg$")
+files_dandelions <- all_files_d[!grepl("modified_", all_files_d)]
+pixel10th(files_dandelions)
+
+# Get a list of all jpgs in grass folder
+all_files_g <- list.files(path = "grass", pattern = "\\.jpg$")
+files_grass <- all_files_g[!grepl("modified_", all_files_g)]
+pixel10th(files_grass)
+\end{lstlisting}
+
 \subsection{Noise}
 When brainstorming ideas for ways to fool the binary image classifier, adding noise to the images was an idea our team thought would work. Noise in the context of image alteration is when random variations occur among the pixels. These variations can appear as varying color brightness, image distortion, or just any way additional information is added to the original image that was not originally there. Using noise to fool a binary image classifier often is a good choice because the binary image classifier relies on repeating patterns when it comes to shape and color to be able to accurately identify the right images. Noise has the ability to affect that pattern recognition so it ends up being a good algorithm to use. In the algorithm itself we first set the proportion of pixels that would be modified to 1 percent so that we could meet our project requirement goals. After reading in the images the first thing the algorithm would do would be to choose a random assortment of pixels to modify based on our 1 percent parameter. Next it would modify the pixels it had chosen by creating a copy of the image and then adding a normally distributed amount of noise to the copy of the image. Lastly after modifying the image it would save the modified image to a folder with a name post fix of noisy. The specific R packages we used in this algorithm were library(jpeg) and library(magick). The jpeg package was used to read in the images, and the magick package is used to write modified image matrix to the new file. All the other functions used were built into R. 
 \begin{lstlisting}[language = R, frame = single]
@@ -182,10 +219,57 @@ for (file in filelist) {
 }
 \end{lstlisting}
 \subsection{Centered Pixel Box}
-Once we had developed our Patterned Pixel color changing algorithm for 1 in every 100 pixels, developing a centered black box of pixels to fool the model was a simpler endeavour. The decision to include this algorithm stemmed from it's effectiveness. 
-\subsection{Blur}
+Once we had developed our Patterned Pixel color changing algorithm for 1 in every 100 pixels, developing a centered black box of pixels to fool the model was a simpler endeavour. The decision to include this algorithm stemmed from it's effectiveness. Using the \verb|'jpeg'| library and the algorithm uses a for loop to read the images, define the dimensions of the \verb|jpeg|, define the dimensions of the centered box, and finally setting the box to black, while only using 1\verb|%| of the image's pixels. Example code for adding a black box to the images of dandelions: 
+\begin{lstlisting}[language = R, frame = single]
+library(jpeg)
+# Get a list of all JPG files in the "dandelions" folder
+file_list <- list.files(path = "dandelions", pattern = "\\.jpg$", full.names = TRUE
+# Loop over each file in the list
+for (file in file_list) {
+  # Read the image
+  image <- readJPEG(file)
+  # dimensions of jpg
+  width <- dim(image)[1]
+  height <- dim(image)[2]
+  # define the dimensions of the black box
+  box_width <- floor(width / 10)
+  box_height <- floor(height / 10)
+  x_center <- floor(width / 2)
+  y_center <- floor(height / 2)
+  # set the pixels inside the black box to black
+  for (i in seq(x_center - floor(box_width / 2), x_center + floor(box_width / 2))) {
+    for (j in seq(y_center - floor(box_height / 2), y_center + floor(box_height / 2))) {
+      image[i, j, ] <- c(0, 0, 0) 
+    }
+  }
+  # Write the modified image to a new file
+  writeJPEG(image, paste0(file, "_modified.jpg"))
+}
 
-\newpage
+\end{lstlisting}
+\subsection{Blur}
+The blur effect was attempted in several ways, finally resulting in our group using the \verb|'isoblur'| function through the \verb|'imager'| package in R. Our group felt using a blur or smoothing filter would adequately fool the model. To do this, the algorithm looped through all the files, read the images, applied the \verb|'isoblur'| to the images, and saved the new modified image into the folders. We did run into some issues with it's performance (See Appendix III), but found that it was one of the most effective and efficient working sub-algorithms we had developed. 
+\begin{lstlisting}[language = R, frame = single]
+library(imager)
+# Set the path to your image folder
+img_folder <- "C:/kylewilson/Desktop/332/dandelions"
+
+# Loop over all files in the folder with the .jpg extension
+for (file in list.files(img_folder, pattern = "\\.jpg$")) {
+  
+  # Read in the image
+  img_int <- imager::load.image(file.path(img_folder, file))
+  
+  # Apply iso blur
+  blurred_img_int <- imager::isoblur(img, sigma = .01)
+  
+  # Create a new filename for the blurred image
+  new_file <- gsub("\\.jpg$", "_blurred.jpg", file)
+  
+  # Write the blurred image to a new file
+  imager::save.image(blurred_img, file.path(img_folder, new_file))
+}
+\end{lstlisting}
 \section{Majority Classifier}
 
 \newpage
@@ -195,26 +279,57 @@ Once we had developed our Patterned Pixel color changing algorithm for 1 in ever
 \subsection{Verification}
 
 \subsection{Technical Challenges}
-
+We did face some interface related technical issues when it came to the testing of our algorithms. 
 
 
 \newpage
 \section{Appendix II: Run-time Complexity and WallTime}
 \subsection{Technical Challenges}
+One major issue in regards to accounting for run-time complexity and WallTime was the fact that we had difficulties in developing working algorithms and also developing the majority classifier. This created challenges because the project was set up for us to be able to easily compare run times for the different algorithms/find an average run time for the total modification of pictures and their classification, but the lack of a working majority voting classifier algorithm prevented the ability of that. We were able to account for the run-time complexities and walltimes of each indi
+\subsection{Complete Algorithm}
+
 
 \newpage
 \section{Appendix III: Performance}
 
 \subsection{Technical Challenges}
 \subsubsection{Blur}
-An issue that we ran into and were unable to solve, was a pinpointed blur attack on the images. We attempted dozens of renditions of the blur effect using different functions and packages, but ran into cycles of errors each time. 
+An issue that we ran into and were unable to solve, was a pinpointed blur attack on the images. We attempted dozens of renditions of the blur effect using different functions and packages, but ran into cycles of errors each time. we tried functions including \verb|'gaussian_blur'| from the \verb|'imager'| package, \verb|'blur'| function from the \verb|'imager'| and \verb|'EBImage'| package, and the \verb|'blurImage'| function from the \verb|'imager'| package. All of these involved creating a blur at random pinpointed pixels, with a specified blur radius. This was all in an attempt to blur only 1\verb|%| of the pixels rather than the whole image. After countless attempts, we decided to simply use the \verb|'isoblu'| function from the \verb|'imager'| package to create a blur effect for the entire picture. 
 \subsubsection{Grass Declassification}
-Our biggest challenge, and most frustrating, was our algorithms inability to declassify the grass images from the trained model. 
+Our biggest challenge was our algorithms inability to declassify the grass images from the trained model. Through each rendition of our sub-algorithms we found the classifier was never fooled in regard to the grass images. Each time it was able to classify the pictures of grass. In an attempt to understand why our algorithms weren't able to fool the model in each case, we tried multiple color changing algorithms to attempt to inebriate the model. Even with a full grey-scale effect, full color changes, and multiple orientation transformation algorithms, in addition to our five sub-algorithms, we were unable to fool the model. We deducted that we would be unable to do so, and tried to focus our efforts on the most effective algorithms for fooling the model's dandelion classifications. 
+\begin{figure}[h!]
+  \centering
+  \begin{subfigure}[b]{0.45\linewidth}
+    \includegraphics[width=\linewidth]{images/Grass - normal.jpg}
+    \caption{Original Grass Picture}
+    \label{fig:image1}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\linewidth}
+    \includegraphics[width=\linewidth]{images/Grass - 1%noise.jpg}
+    \caption{Grass Picture with 1 Percent Noise}
+    \label{fig:image2}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{0.45\linewidth}
+    \includegraphics[width=\linewidth]{image3}
+    \caption{Caption for image 3.}
+    \label{fig:image3}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\linewidth}
+    \includegraphics[width=\linewidth]{image4}
+    \caption{Caption for image 4.}
+    \label{fig:image4}
+  \end{subfigure}
+
+  \caption{Caption for the entire figure.}
+  \label{fig:figure}
+\end{figure}
 \newpage
 \section{Appendix IV: Justification}
 \subsection{Technical Challenges}
+Throughout this project, we tested more than just the 5 algorithms we chose to work with right now. Ultimately, the decision to use those algorithms was influenced by the challenges we ran into with other algorithms tested out.
 \subsubsection{Universal Adversarial Perturbations - (UAP)}
-Throughout this project, we tested more than just the 5 algorithms we chose to work with right now. The first other algorithm we tested out for the adversarial attack was the UAP (Universal Adversarial Perturbation). This attack is meant to add a small perturbation to the large amount of images data, causing the model to declassify them. Through the creation of that algorithm, we ran into multiple issues. First off, this algorithm works best with the “adversarial” function package, which, is not available in R. We tried to use the “reticulate” and “py install” functions to fix that issue, which didn’t work, and even though we ended up using the “cleverhans” package, not being able to use adversarial made the overall process much harder. Therefore, working in R instead of Python was definitely one of our biggest challenges during this project. Another issue we ran into was the "imager" library not working properly on Mac, we downloaded the “XQuartz” software to be able to use the package properly. Finally, the fgsm function included in the UAP code ended up being very complex to work with, as it gave us many errors we weren’t able to get over. Below is the attached code of the UAP algorithm we tried out.
+ The first other machine learning algorithm we tested out for the adversarial attack was the UAP (Universal Adversarial Perturbation). This attack is meant to add a small perturbation to the large amount of images data, causing the model to declassify them. Through the creation of that algorithm, we ran into multiple issues. First off, this algorithm works best with the “adversarial” function package, which, is not available in R. We tried to use the “reticulate” and “py install” functions to fix that issue, which didn’t work, and even though we ended up using the “cleverhans” package, not being able to use adversarial made the overall process much harder. Therefore, working in R instead of Python was definitely one of our biggest challenges during this project. Another issue we ran into was the "imager" library not working properly on Mac, we downloaded the “XQuartz” software to be able to use the package properly. Finally, the fgsm function included in the UAP code ended up being very complex to work with, as it gave us many errors we weren’t able to get over. Below is the attached code of the UAP algorithm we tried out.
 
 \begin{lstlisting}[language = R, frame=single]
 library(reticulate)
@@ -277,11 +392,10 @@ X_dandelions_adv <- predict(up_fit, X_dandelions)
 
 \end{lstlisting}
 \subsubsection{Fast Gradient Sign Method - (FGSM)}
-The second of the main machine learning algorithms that our team tried was Fast Gradient Sign Method or FGSM. The main goal of FGSM is to use the gradient of the classifying algorithm to create adversarial images that will fool the classifier. 
+The second of the main machine learning algorithms that our team tried was Fast Gradient Sign Method or FGSM. The main goal of FGSM is to use the gradient of the classifying algorithm to create adversarial examples that will fool the classifier. These adversarial examples visually look similar to the original images but fool the classifier not by visually fooling it but by changing the pixel values to fool the algorithm. The FGSM algorithm uses the gradient of the loss function with respect to the input image and then adds small perturbations to the image. This is done by adding a small epsilon to the sign of the gradient. FGSM is an effective adversarial method because it effects the way the classifier classifies images. FGSM works well against binary image classifier like the one in this project because these classifier algorithms are often visual pattern recognition models and the FGSM algorithm can easily modify pixel values in a way that will cause the binary classifier to miss-classify even though the images are visually similar. While FGSM is a relatively easy algorithm to create in Python; in R, our group ran into endless issues when trying to create this FGSM algorithm. Certain packages like "adversarial" "applications" "cleverhans" and even some of the functions in "keras" and "tensorflow" just do not exist in the versions of R we were using and had access to. When it came to loading and pre-processing the images some packages had ways to process and scale the images, but didn't have a way to run other parts and since the were processed using a functions from one package trying to add perturbations with functions from another package did not work. This is because the functions used to process the images were from the keras package in R and the functions used to do the actual FGSM part were based in Python and Rstudio could not handle the overlap. We tried a variety of approaches using different packages and functions that we found in our research, however with each fix a new error popped up. The most common errors were: "error during wrapup:'function we tried' is not an exported object from 'namespace:keras.' This error occured with namespace:tensorflow as well. "Error during wrapup: object 'variable not ran because function didnt exist' not found." This always occurred because the code failed earlier on. Overall the functions in tensorflow and keras that were essential to be able to use to create the FGSM algorithm either did not exist or did not work in Rstudio leading our team to be at an impass for completing that algorithm. Each member of our team tackled this algorithm to try to make it work because we felt we were really close to getting it correc, however none of us were able to solve the errors and we all ended up in an endless error loop. 
 
 \begin{lstlisting}[language = R, frame = single]
 install.packages("tensorflow")
-tensorflow::install_tensorflow()
 install.packages("keras")
 install.packages("applications")
 library(reticulate)
@@ -314,7 +428,7 @@ img2 <- map(img2, function(x) x / 255)  # scale pixel values to [0, 1]
 img2 <- map(img2, array_reshape, c(1, 224, 224, 3)) # reshape images to expected shape
 img2 <- do.call(rbind, img2)
 
-# use fgsm to change something of this image that will fool the classifier model
+# use fgsm to fool the classifier model
 fgsm_attack <- function(model, x, epsilon) {
   # Preprocess the image data
   x <- keras::preprocess_input(x)
@@ -344,8 +458,120 @@ acc_orig <- mean(as.numeric(pred1 > 0.5))
 acc_adv <- mean(as.numeric(pred_adv > 0.5))
 cat(paste0("Accuracy on original dandelion images: ", acc_orig, "\n"))
 cat(paste0("Accuracy on adversarial dandelion images: ", acc_adv, "\n"))
-
 \end{lstlisting}
+
+\subsubsection{Deepfool}
+Deepfool is an algorithm that is similar to FGSM as it adds small perturbations that are not visibly noticeable but causes the binary image classifier to be fooled by the image the Deepfool algorithm makes. As in the name Deepfool algorithms look to fool deep neural networks. As in FGSM, Deepfool computes the gradient with respect to the input image but differs from FGSM in that it iterates the perturbations from a small amount until the minimum amount needed to fool the classifier. As in the FGSM algorithm we ran into issues due to the use of Python functionalities in R. Some of the functions needed were not in the R version of tensorflow and keras and when we tried to update the packages to a new version nothing worked even though the functions were supposed to be there. In the code below we first loaded the model, then created a function to generate the adversarial images, then created a copy of the image, iterated until an adversarial image is found, keep track of the perturbations, apply the perturbations to the image, check to see if the perturbations make the image adversarial, if it is adversarial then stop iterating and return the perturbed image, and then generate the image to view. \\
+
+\begin{lstlisting}[language = R, frame = single]
+install.packages("tensorflow", version = "2.3.1")
+install.packages("keras", version = "2.4.3")
+reticulate:: py_install("pillow", force = TRUE)
+
+library(tidyverse)
+library(reticulate)
+library(keras)
+library(tensorflow)
+reticulate:: py_install("cleverhans", force = TRUE)
+use_backend("tensorflow")
+library(purrr)
+
+# Load and preprocess an image to attack
+img_path <- "dandelions/636597665741397587-dandelion-1097518082.jpg"
+img <- keras::image_load(img_path, target_size = c(224, 224))
+img <- keras::image_to_array(img)
+img <- array_reshape(img, c(1, dim(img)))
+
+# Load the binary image classifier model
+model <- load_model_tf("./dandelion_model")
+
+# Define a function to generate adversarial images using DeepFool
+deepfool_attack <- function(model, image, max_iter = 50, epsilon = 0.02, clip_min = 0, clip_max = 1) {
+  # Convert image to a tensor
+  image_tensor <- array_reshape(image, dim = c(1, dim(image)))
+  image_tensor <- tf$constant(image_tensor)
+  
+  # Remove the first dimension of the image tensor
+  image_tensor <- tf$squeeze(image_tensor, axis = 0)
+  
+  # Predict the class probabilities for the input image
+  preds <- model(image_tensor)
+  
+  
+  # Create a copy of the input image for perturbation
+  x_adv <- tf$Variable(image_tensor)
+  
+  # Get the number of classes in the model
+  num_classes <- dim(model$output_shape)[2]
+  
+  # Iterate until the maximum number of iterations or until an adversarial image is found
+  for (iter in 1:max_iter) {
+    with(tf$GradientTape() %as% tape, {
+      tape$watch(x_adv)
+      preds <- model(x_adv)
+      pred_class <- tf$argmax(preds, axis = 1)
+      y_true <- tf$one_hot(tf$cast(pred_class, dtype=tf$int64), num_classes)
+      y_true <- tf$reshape(y_true, shape = c(1, num_classes))
+      loss <- keras$backend$categorical_crossentropy(y_true, preds)
+      grads <- tape$gradient(loss, x_adv)
+    })
+    
+    # Find the direction of greatest sensitivity to the decision boundary
+    w_norm <- tf$linalg$norm(tf$reshape(grads, shape = c(-1, num_classes)), axis = 1)
+    f_xw <- model(x_adv)
+    f_xw_argmax <- tf$argmax(f_xw, axis = 1)
+    
+    min_dist <- tf$ones(shape = c(1)) * tf$cast(Inf, dtype = tf$float32)
+    min_perturbation <- tf$zeros(shape = dim(image_tensor), dtype = tf$float32)
+    
+    for (k in 1:(num_classes - 1)) {
+      mask <- tf$not_equal(f_xw_argmax, k)
+      w_k_norm <- tf$boolean_mask(w_norm, mask)
+      f_k_xw <- tf$boolean_mask(f_xw, mask)
+      perturbation_k <- (w_k_norm / tf$linalg$norm(w_k_norm)) * (tf$abs(f_k_xw - f_xw[,k]) / w_k_norm)
+      perturbation_k <- tf$expand_dims(perturbation_k, axis = 1)
+      perturbation_k <- tf$reshape(perturbation_k, shape = dim(image_tensor))
+      
+      # Keep track of the perturbation with the smallest l2 distance
+      dist_k <- tf$linalg$norm(perturbation_k)
+      is_smaller_dist <- tf$less(dist_k, min_dist)
+      min_dist <- tf$where(is_smaller_dist, dist_k, min_dist)
+      min_perturbation <- tf$where(is_smaller_dist, perturbation_k, min_perturbation)
+    }
+    
+    # Apply the perturbation to the image
+    x_adv <- tf$clip_by_value(x_adv + min_perturbation, clip_min, clip_max)
+    
+    # Check if the perturbed image is adversarial
+    preds_adv <- model(x_adv)
+    pred_class_adv <- tf$cast(tf$argmax(preds_adv, axis = 1), dtype = tf$int32)
+    if (tf$equal(pred_class, pred_class_adv)$numpy()) {
+      # If the perturbed image is not adversarial, continue to the next iteration
+      next
+    } else {
+      # If the perturbed image is adversarial, stop iterating and return the adversarial image
+      adv_image <- keras::array_to_img(x_adv$numpy(), scale = TRUE)
+      adv_path <- "dandelions/adv_dandelion.jpg"
+      keras::save_img(adv_path, adv_image)
+      message("Adversarial image generated and saved to ", adv_path)
+      return(adv_image)
+    }
+  }
+  
+  # If the maximum number of iterations is reached and no adversarial image is found, return NULL
+  message("Maximum number of iterations reached. Failed to generate an adversarial image.")
+  return(NULL)
+}
+
+# Generate an adversarial image using the DeepFool algorithm
+adv_image <- deepfool_attack(model, img)
+
+# Show the original image and the adversarial image side by side
+original_image <- keras::array_to_img(img, scale = TRUE)
+grid.arrange(original_image, adv_image, ncol = 2, widths = c(1, 1))
+\end{lstlisting}
+
+
 \newpage
 \subsection{References}
 \begin{enumerate}
