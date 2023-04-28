@@ -178,36 +178,55 @@ add_noise_to_images <- function(path) {
   }
 }
 
-# load the images from a folder
-folder_grass <- "grass"
-images_grass <- list.files(folder_grass, full.names = TRUE)
-folder_dandelions <- "dandelions"
-images_dandelions <- list.files(folder_dandelions, full.names = TRUE)
+# load the images from each folder
+all_files_d <- list.files(path = "dandelions", pattern = "\\.jpg$", full.names = TRUE)
+files_dandelions <- all_files_d[!grepl(ignore_patterns, all_files_d)]
+all_files_g <- list.files(path = "dandelions", pattern = "\\.jpg$", full.names = TRUE)
+files_grass <- all_files_g[!grepl(ignore_patterns, all_files_g)]
 
-# define the weights for each algorithm based on their success rate in fooling the classifier
+# weights range from .075 to .325 for each algorithm
 algorithm_weights <- c(0.075, 0.125, 0.2, 0.275, 0.325)
 
 # apply the predictor on each image
-best_func <- function(images1, images2) {
-  
-  # read the image
-  image <- load.image(image_file)
-  
-  # apply each algorithm to the image and get the predicted class label for each modified image
-  predictions <- map_dbl(list(pixel10th, vertical_flip, isoblurFunction, centered_black_box, add_noise_to_images), function(algorithm) {
-    modified_image <- algorithm(image)
-    classifier(modified_image)
-  })
-  
-  # calculate the weighted sum of probabilities for each class label
-  class_probs <- c(0,0,0)
-  for (i in seq_along(predictions)) {
-    class_probs[predictions[i]] <- class_probs[predictions[i]] + algorithm_weights[i]
+best_func <- function(files1, files2) {
+  for (file in files1){
+    image <- load.image(image_file)
+    
+    # determine best algorithm for each image
+    predictions <- map_dbl(list(pixel10th, vertical_flip, isoblurFunction, centered_black_box, add_noise_to_images), function(algorithm) {
+      modified_image <- algorithm(image)
+      classifier(modified_image)
+    })
+    
+    # calculate the weighted sum of probabilities for each algorithm
+    probs <- c(0,0,0,0,0)
+    for (i in seq_along(predictions)) {
+      probs[predictions[i]] <- probs[predictions[i]] + algorithm_weights[i]
+    }
+    
+    # return the class label with the highest weighted sum of probabilities
+    return(which.max(probs))
   }
   
-  # return the class label with the highest weighted sum of probabilities
-  return(which.max(class_probs))
+  # second loop that does the same for the dandelions or files2
+  for (file in files2){
+    image <- load.image(image_file)
+    
+    # determine best algorithm for each image
+    predictions <- map_dbl(list(pixel10th, vertical_flip, isoblurFunction, centered_black_box, add_noise_to_images), function(algorithm) {
+      modified_image <- algorithm(image)
+      classifier(modified_image)
+    })
+    
+    # calculate the weighted sum of probabilities for each algorithm
+    probs <- c(0,0,0,0,0)
+    for (i in seq_along(predictions)) {
+      probs[predictions[i]] <- probs[predictions[i]] + algorithm_weights[i]
+    }
+    
+    # return the class label with the highest weighted sum of probabilities
+    return(which.max(probs))
+  }
 }
 
-# apply the ensemble on all images in the folder and save the predictions
-best_func <- map_int(images_grass, images_dandelions, best_func)
+best_func <- (files_grass, files_dandelions)
