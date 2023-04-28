@@ -77,11 +77,11 @@ Accountable together -- we are Purdue.''}
     \begin{tabular}{c|ccccc|c|c}
       Student & Algorithm Dev & Analysis & Implementation & Testing & Report & Overall & DIFF\\
       \hline
-      David Bell & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
-      Maude Frappart & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
-      Justin Ha & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
-      Gianna Marzen & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
-      Kyle Wilson & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+      David Bell & 20 & 20 & 20 & 20 & 20 & 100 & 0\\
+      Maude Frappart & 20 & 20 & 20 & 20 & 20 & 100 & 0\\
+      Justin Ha & 20 & 20 & 20 & 20 & 20 & 100 & 0\\
+      Gianna Marzen & 20 & 20 & 20 & 20 & 20 & 100 & 0\\
+      Kyle Wilson & 20 & 20 & 20 & 20 & 20 & 100 & 0\\
       \hline
       St Dev & 0 & 0 & 0 & 0 & 0 & 0 & 0
     \end{tabular}
@@ -117,17 +117,76 @@ Accountable together -- we are Purdue.''}
 
 \newpage
 \section{Design and Planning}
+Our objective for this project was to train a voting-based optimization algorithm that performs adversarial attacks on and image classification model. The first step was to develop an understanding of the requirements and expectations, and subsequently develop a plan to accomplish our objective. Using class resources and online text, we began developing ideas and strategies for the five algorithms we would implement in the majority classifier. The original trained model we were given provided a 100\verb|%| accuracy rate for the training data, so our adversarial attacks needed to be robust enough to fool the model. After the testing and verification processes, we were able to identify the five most effective sub-algorithms to implement into the majority classifier. In order to do this we tested several sub-algorithms, ran into dozens of errors, and had to make difficult decisions as to which classifier's would be best implemented. It was essential to develop and select diverse sub-algorithms to best accomplish our goal.
 
-\newpage
+
 \section{Algorithms}
 \subsection{Patterned Pixel Change}
-\subsection{Greyscale}
+\newpage
+\subsection{Noise}
+When brainstorming ideas for ways to fool the binary image classifier, adding noise to the images was an idea our team thought would work. Noise in the context of image alteration is when random variations occur among the pixels. These variations can appear as varying color brightness, image distortion, or just any way additional information is added to the original image that was not originally there. Using noise to fool a binary image classifier often is a good choice because the binary image classifier relies on repeating patterns when it comes to shape and color to be able to accurately identify the right images. Noise has the ability to affect that pattern recognition so it ends up being a good algorithm to use. In the algorithm itself we first set the proportion of pixels that would be modified to 1 percent so that we could meet our project requirement goals. After reading in the images the first thing the algorithm would do would be to choose a random assortment of pixels to modify based on our 1 percent parameter. Next it would modify the pixels it had chosen by creating a copy of the image and then adding a normally distributed amount of noise to the copy of the image. Lastly after modifying the image it would save the modified image to a folder with a name post fix of noisy. The specific R packages we used in this algorithm were library(jpeg) and library(magick). The jpeg package was used to read in the images, and the magick package is used to write modified image matrix to the new file. All the other functions used were built into R. 
+\begin{lstlisting}[language = R, frame = single]
+add_noise_to_images <- function(path) {
+library(jpeg)
+library(magick)
+  
+# get the list of all JPEG files in the folder
+filelist <- list.files(path, pattern = ".jpg", full.names = TRUE)
+  
+# set the proportion of pixels to modify
+proportion <- 0.01
+  
+# iterate over each file in the folder
+for (file in filelist) {
+# read the image
+img <- readJPEG(file)
+# identify random pixels to modify
+num_pixels <- length(img)
+num_to_modify <- round(num_pixels * proportion)
+idx_to_modify <- sample(num_pixels, num_to_modify)
+    
+# modify the identified pixels
+noisy_matrix <- img
+noisy_matrix[idx_to_modify] <- noisy_matrix[idx_to_modify] + rnorm(num_to_modify, mean = 0, sd = 0.1)
+# write the filtered image to a new file
+  new_file <- sub(".jpg", "_noisy1%.jpg", file)
+  writeJPEG(noisy_matrix, quality = 100, new_file)
+  }
+}
+
+add_noise_to_images("dandelions")
+add_noise_to_images("grass")
+\end{lstlisting}
+
 \subsection{Spatial Transformation Attack}
+Another algorithm our group attempted was a spatial transformation attack by rotating the images vertically in an attempt to fool the binary image classifier. By rotating, we are not changing the pixels, but transforming them to fit the given requirements. Vertically flipping an image was done to fool the algorithm because by changing the orientation of an image, the classifier misinterprets the contents of the image because the items within the image are altered and flipped which allows us to successfully fool it.  We have done this by utilizing the "magick" R package and the image\_flip() function. We used this function in two FOR loops for both the dandelion and grass folder. The for loop runs through the pictures in the folder and creates a new copy of the image with the desired vertical rotation.
+\begin{lstlisting}[language = R, frame=single]
+library(tidyverse)
+library(keras)
+library(tensorflow)
+library(reticulate)
+library(magick)
+library(jpeg)
+install_tensorflow(extra_packages="pillow")
+install_keras()
+
+path <- "[corresponding picture folder]"
+filelist <- list.files(path, pattern = ".jpg", full.names = TRUE)
+
+for (file in filelist) {
+  img <- image_read(file)
+  vert_flip <- image_flip(img)
+  
+  new_file <- sub(".jpg", "_vertflip.jpg", file)
+  image_write(vert_flip, new_file)
+}
+\end{lstlisting}
+\subsection{Centered Pixel Box}
+Once we had developed our Patterned Pixel color changing algorithm for 1 in every 100 pixels, developing a centered black box of pixels to fool the model was a simpler endeavour. The decision to include this algorithm stemmed from it's effectiveness. 
 \subsection{Blur}
-\subsection{DeepFool?}
 
 \newpage
-\section{ Majority Classifier}
+\section{Majority Classifier}
 
 \newpage
 \section{Appendix I: Testing}
@@ -137,25 +196,166 @@ Accountable together -- we are Purdue.''}
 
 \subsection{Technical Challenges}
 
+
+
 \newpage
 \section{Appendix II: Run-time Complexity and WallTime}
 \subsection{Technical Challenges}
 
 \newpage
 \section{Appendix III: Performance}
-\subsection{Technical Challenges}
 
+\subsection{Technical Challenges}
+\subsubsection{Blur}
+An issue that we ran into and were unable to solve, was a pinpointed blur attack on the images. We attempted dozens of renditions of the blur effect using different functions and packages, but ran into cycles of errors each time. 
+\subsubsection{Grass Declassification}
+Our biggest challenge, and most frustrating, was our algorithms inability to declassify the grass images from the trained model. 
 \newpage
 \section{Appendix IV: Justification}
 \subsection{Technical Challenges}
+\subsubsection{Universal Adversarial Perturbations - (UAP)}
+Throughout this project, we tested more than just the 5 algorithms we chose to work with right now. The first other algorithm we tested out for the adversarial attack was the UAP (Universal Adversarial Perturbation). This attack is meant to add a small perturbation to the large amount of images data, causing the model to declassify them. Through the creation of that algorithm, we ran into multiple issues. First off, this algorithm works best with the “adversarial” function package, which, is not available in R. We tried to use the “reticulate” and “py install” functions to fix that issue, which didn’t work, and even though we ended up using the “cleverhans” package, not being able to use adversarial made the overall process much harder. Therefore, working in R instead of Python was definitely one of our biggest challenges during this project. Another issue we ran into was the "imager" library not working properly on Mac, we downloaded the “XQuartz” software to be able to use the package properly. Finally, the fgsm function included in the UAP code ended up being very complex to work with, as it gave us many errors we weren’t able to get over. Below is the attached code of the UAP algorithm we tried out.
+
+\begin{lstlisting}[language = R, frame=single]
+library(reticulate)
+reticulate::py_install("cleverhans", force= TRUE)
+library(imager)
+library(tensorflow)
+library(keras)
+
+# Define the paths to your dataset
+grass_data_dir <- "/Users/maudefrappart/Library/CloudStorage/OneDrive-purdue.edu/IE332/grass"
+dandelions_data_dir <- "/Users/maudefrappart/Library/CloudStorage/OneDrive-purdue.edu/IE332/dandelions"
+
+# Create the data generators for each dataset
+img_gen <- image_data_generator()
+grass_data <- flow_images_from_directory(
+  grass_data_dir,
+  target_size = c(224, 224),
+  batch_size = 32,
+  class_mode = "binary",
+  shuffle = TRUE
+)
+dandelions_data <- flow_images_from_directory(
+  dandelions_data_dir,
+  target_size = c(224, 224),
+  batch_size = 32,
+  class_mode = "binary",
+  shuffle = TRUE
+)
+
+# Define the model you want to attack
+model_path <- "/Users/maudefrappart/Library/CloudStorage/OneDrive-purdue.edu/IE332/classifiermodel.R"
+model <- tensorflow::tf$keras$models$load_model(model_path)
+
+# Define the parameters for the attack
+nb_epochs <- 10
+eps <- 0.5
+batch_size <- 32
+delta <- 0.5
+
+# Create the UAP object
+up <- universal_perturbation_fgsm(
+  model=model,
+  eps=eps,
+  delta=delta,
+  max_iter=nb_epochs,
+  batch_size=batch_size
+)
+
+# Generate the UAP
+up_fit <- fit_up_generator(grass_data, up)
+
+# Apply the UAP to your datasets
+X_grass <- grass_data$X
+Y_grass <- grass_data$Y
+X_grass_adv <- predict(up_fit, X_grass)
+
+X_dandelions <- dandelions_data$X
+Y_dandelions <- dandelions_data$Y
+X_dandelions_adv <- predict(up_fit, X_dandelions)
+
+\end{lstlisting}
+\subsubsection{Fast Gradient Sign Method - (FGSM)}
+The second of the main machine learning algorithms that our team tried was Fast Gradient Sign Method or FGSM. The main goal of FGSM is to use the gradient of the classifying algorithm to create adversarial images that will fool the classifier. 
+
+\begin{lstlisting}[language = R, frame = single]
+install.packages("tensorflow")
+tensorflow::install_tensorflow()
+install.packages("keras")
+install.packages("applications")
+library(reticulate)
+reticulate:: py_install("pillow", force = TRUE)
+reticulate:: py_install("cleverhans", force = TRUE)
+library(tidyverse)
+library(keras)
+library(tensorflow)
+use_backend("tensorflow")
+library(purrr)
+
+# Load the binary image classifier model
+model <- load_model_tf("./dandelion_model")
+
+#load and preprocess a range of sample images from the folder dandelion
+img_path <- "./dandelions/"
+img <- list.files(img_path, full.names = TRUE)
+img <- map(img, ~ keras::image_load(.x, target_size = c(224, 224)))
+img <- map(img, keras::image_to_array)
+img <- map(img, function(x) x / 255)  # scale pixel values to [0, 1]
+img <- map(img, array_reshape, c(1, 224, 224, 3)) # reshape images to expected shape
+img <- do.call(rbind, img)
+
+#load and preprocess a range of sample images from the folder grass
+img_path2 <- "./grass/"
+img2 <- list.files(img_path2, full.names = TRUE)
+img2 <- map(img2, ~ keras::image_load(.x, target_size = c(224, 224)))
+img2 <- map(img2, keras::image_to_array)
+img2 <- map(img2, function(x) x / 255)  # scale pixel values to [0, 1]
+img2 <- map(img2, array_reshape, c(1, 224, 224, 3)) # reshape images to expected shape
+img2 <- do.call(rbind, img2)
+
+# use fgsm to change something of this image that will fool the classifier model
+fgsm_attack <- function(model, x, epsilon) {
+  # Preprocess the image data
+  x <- keras::preprocess_input(x)
+  # Compute the gradient of the loss function with respect to the input image
+  grad <- k_gradient(model$output, model$input)
+  # Compute the sign of the gradient
+  sign_grad <- sign(grad)
+  # Compute the perturbed image by adding a small epsilon to the sign of the gradient
+  x_adv <- x + epsilon * sign_grad
+  # Clip the perturbed image to ensure that pixel values remain within [-1, 1]
+  x_adv <- clip(x_adv, -1, 1)
+  # Reverse the preprocessing step to obtain the perturbed image in its original format
+  x_adv <- keras::preprocess_input(x_adv, mode = "tf")
+  # Return the perturbed image
+  return(x_adv)
+}
+
+# generate adversarial examples using FGSM and evaluate the model's accuracy
+epsilon <- 0.05 # adjust the value of epsilon to control the strength of the attack
+adv_img <- map(img, ~ fgsm_attack(model, .x, epsilon))
+adv_img2 <- map(img2, ~ fgsm_attack(model, .x, epsilon))
+pred_adv <- predict(model, adv_img)
+pred_adv2 <- predict(model, adv_img2)
+
+# calculate the accuracy of the model on original vs. adversarial examples
+acc_orig <- mean(as.numeric(pred1 > 0.5))
+acc_adv <- mean(as.numeric(pred_adv > 0.5))
+cat(paste0("Accuracy on original dandelion images: ", acc_orig, "\n"))
+cat(paste0("Accuracy on adversarial dandelion images: ", acc_adv, "\n"))
+
+\end{lstlisting}
 \newpage
 \subsection{References}
-\noindent \emph{How to build your own image recognition app with R!} R-Bloggers. (2021, March 16). Retrieved April 27, 2023, from https://www.r-bloggers.com/2021/03/how-to-build-your-own-image-recognition-app-with-r-part-1/ \\\\
-\noindent \emph{Image smoothing in R.}Stack Overflow. Retrieved April 27, 2023, from https://stackoverflow.com/questions/17022379/image-smoothing-in-r \\\\
-\noindent \emph{Change image pixel colors in R and save image}. Stack Overflow. Retrieved April 27, 2023, from https://stackoverflow.com/questions/59861122/change-image-pixel-colors-in-r-and-save-image \\\\
-\noindent \emph{Blur: Apply Gaussian Blur to a pixel image. }RDocumentation. (n.d.). Retrieved April 27, 2023, from https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/blur \\\\
-\noindent \emph{Package Package - Cran.r-Project.org.}https://cran.r-project.org/web/packages/magick/magick.pdf. 
-
+\begin{enumerate}
+     \item  \emph{How to build your own image recognition app with R!} R-Bloggers. (2021, March 16). Retrieved April 27, 2023, from https://www.r-bloggers.com/2021/03/how-to-build-your-own-image-recognition-app-with-r-part-1/ \\
+\item  \emph{Image smoothing in R.}Stack Overflow. Retrieved April 27, 2023, from https://stackoverflow.com/questions/\\
+17022379/image-smoothing-in-r \\\\
+\item \emph{Change image pixel colors in R and save image}. Stack Overflow. Retrieved April 27, 2023, from https://stackoverflow.com/questions/59861122/change-image-pixel-colors-in-r-and-save-image \\\\
+\item  \emph{Blur: Apply Gaussian Blur to a pixel image. }RDocumentation. (n.d.). Retrieved April 27, 2023, from https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/blur \\\\
+\item \emph{Package Package - Cran.r-Project.org.} Retrieved April 27, 2023, from https://cran.r-project.org/web/packages /magick/magick.pdf. \\\\
+\end{enumerate}
 
 
 \end{document}
