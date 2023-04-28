@@ -1,10 +1,7 @@
+
+setwd("C:/Users/giann/Documents/ie332/grass")
+
 library(jpeg)
-
-# Get a list of all JPG files in the directory
-all_files <- list.files(pattern = "\\.jpg$")
-
-# Find the files that don't match the pattern "modified_"
-files_to_process <- all_files[!grepl("modified_", all_files)]
 
 pixel10th <- function (files_to_process) {
   # Process each file
@@ -29,4 +26,12 @@ pixel10th <- function (files_to_process) {
   }
 }
 
-pixel10th(files_to_process)
+# Get a list of all jpgs in dandelion folder
+all_files <- list.files(path = "dandelions", pattern = "\\.jpg$")
+files_dandelions <- all_files[!grepl("modified_", all_files)]
+pixel10th(files_dandelions)
+
+# Get a list of all jpgs in grass folder
+all_files <- list.files(path = "grass", pattern = "\\.jpg$")
+files_grass <- all_files[!grepl("modified_", all_files)]
+pixel10th(files_dandelions)
