@@ -25,10 +25,10 @@ pixel10th <- function (files_to_process) {
 
 # Get a list of all jpgs in dandelion folder
 all_files_d <- list.files(path = "dandelions", pattern = "\\.jpg$")
-files_dandelions <- all_files[!grepl("modified_", all_files_d)]
+files_dandelions <- all_files_d[!grepl("modified_", all_files_d)]
 pixel10th(files_dandelions)
 
 # Get a list of all jpgs in grass folder
 all_files_g <- list.files(path = "grass", pattern = "\\.jpg$")
-files_grass <- all_files[!grepl("modified_", all_files_g)]
+files_grass <- all_files_g[!grepl("modified_", all_files_g)]
 pixel10th(files_grass)
