@@ -274,12 +274,37 @@ for (file in list.files(img_folder, pattern = "\\.jpg$")) {
 
 \newpage
 \section{Appendix I: Testing}
-\subsection{Correctness}
-
-\subsection{Verification}
-
-\subsection{Technical Challenges}
-We did face some interface related technical issues when it came to the testing of our algorithms. 
+\subsection{Correctness and Verification}
+For testing our algorithms, we utilized the RStudio to identify if our algorithm was capable of fooling the model. To do this, we needed to set the appropriate directories, install and call appropriate packages containing desired functions, run our fooling algorithms, followed by running the classifier algorithm we were given. Once this happened RStudio produced results detailing which images, when modified, were able to fool the classifier algorithm. This provided us the ability to identify which algorithms were working, and more specifically how effective they were in accomplishing our objective. 
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}[b]{0.35\textwidth}
+    \includegraphics[width=\textwidth]{images/Dandelion - normal.jpg}
+    \caption{Dandelion Picture - Original}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{0.35\textwidth}
+    \includegraphics[width=\textwidth]{images/Dandelion - 1pernoise.jpg}
+    \caption{Dandelion Picture - 1 Percent Noise}
+  \end{minipage}\hfill
+  \centering
+  \begin{minipage}[b]{0.35\textwidth}
+    \includegraphics[width=\textwidth]{images/Dandelion - pixel modif.jpg}
+    \caption{Dandelion Picture - Modified Pixels}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{0.35\textwidth}
+    \includegraphics[width=\textwidth]{images/Dandelion - vert flip.jpg}
+    \caption{Dandelion Picture - Vertical Flip}
+  \end{minipage}
+  \begin{minipage}[b]{0.35\textwidth}
+    \includegraphics[width=\textwidth]{images/Dandelion - Box.png}
+    \caption{Dandelion Picture - Box}
+  \end{minipage}
+  \begin{minipage}[b]{0.35\textwidth}
+    \includegraphics[width=\textwidth]{images/Dandelion - Blur.jpg}
+    \caption{Dandelion Picture - Blur}
+  \end{minipage}
+\end{figure}
+\newpage
 
 
 \newpage
@@ -294,35 +319,36 @@ One major issue in regards to accounting for run-time complexity and WallTime wa
 
 \subsection{Technical Challenges}
 \subsubsection{Blur}
-An issue that we ran into and were unable to solve, was a pinpointed blur attack on the images. We attempted dozens of renditions of the blur effect using different functions and packages, but ran into cycles of errors each time. we tried functions including \verb|'gaussian_blur'| from the \verb|'imager'| package, \verb|'blur'| function from the \verb|'imager'| and \verb|'EBImage'| package, and the \verb|'blurImage'| function from the \verb|'imager'| package. All of these involved creating a blur at random pinpointed pixels, with a specified blur radius. This was all in an attempt to blur only 1\verb|%| of the pixels rather than the whole image. After countless attempts, we decided to simply use the \verb|'isoblu'| function from the \verb|'imager'| package to create a blur effect for the entire picture. 
+An issue that we ran into and were unable to solve, was a pinpointed blur attack on the images. We attempted dozens of renditions of the blur effect using different functions and packages, but ran into cycles of errors each time. we tried functions including \verb|'gaussian_blur'| from the \verb|'imager'| package, \verb|'blur'| function from the \verb|'imager'| and \verb|'EBImage'| package, and the \verb|'blurImage'| function from the \verb|'imager'| package. All of these involved creating a blur at random pinpointed pixels, with a specified blur radius. This was all in an attempt to blur only 1\verb|%| of the pixels rather than the whole image. After countless attempts, we decided to simply use the \verb|'isoblu'| function from the \verb|'imager'| package to create a blur effect for the entire picture (See Section 2.5 for detailed algorithm). 
 \subsubsection{Grass Declassification}
 Our biggest challenge was our algorithms inability to declassify the grass images from the trained model. Through each rendition of our sub-algorithms we found the classifier was never fooled in regard to the grass images. Each time it was able to classify the pictures of grass. In an attempt to understand why our algorithms weren't able to fool the model in each case, we tried multiple color changing algorithms to attempt to inebriate the model. Even with a full grey-scale effect, full color changes, and multiple orientation transformation algorithms, in addition to our five sub-algorithms, we were unable to fool the model. We deducted that we would be unable to do so, and tried to focus our efforts on the most effective algorithms for fooling the model's dandelion classifications. 
-\begin{figure}[h!]
+\begin{figure}[htbp]
   \centering
-  \begin{subfigure}[b]{0.45\linewidth}
-    \includegraphics[width=\linewidth]{images/Grass - normal.jpg}
-    \caption{Original Grass Picture}
-    \label{fig:image1}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.45\linewidth}
-    \includegraphics[width=\linewidth]{images/Grass - 1%noise.jpg}
-    \caption{Grass Picture with 1 Percent Noise}
-    \label{fig:image2}
-  \end{subfigure}
-
-  \begin{subfigure}[b]{0.45\linewidth}
-    \includegraphics[width=\linewidth]{image3}
-    \caption{Caption for image 3.}
-    \label{fig:image3}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.45\linewidth}
-    \includegraphics[width=\linewidth]{image4}
-    \caption{Caption for image 4.}
-    \label{fig:image4}
-  \end{subfigure}
-
-  \caption{Caption for the entire figure.}
-  \label{fig:figure}
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{images/Grass - normal.jpg}
+    \caption{Grass Picture - Original}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{images/Grass - 1pernoise.jpg}
+    \caption{Grass Picture - 1 Percent Noise}
+  \end{minipage}\hfill
+  \centering
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{images/Grass - pixel modif.jpg}
+    \caption{Grass Picture - Modified Pixels}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{images/Grass - vert flip.jpg}
+    \caption{Grass Picture - Vertical Flip}
+  \end{minipage}
+   \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{images/Grass - Box.jpg}
+    \caption{Grass Picture - Box}
+  \end{minipage}
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{images/Grass - Blur.jpg}
+    \caption{Grass Picture - Blur}
+  \end{minipage}
 \end{figure}
 \newpage
 \section{Appendix IV: Justification}
